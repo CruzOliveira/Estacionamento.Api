@@ -1,5 +1,7 @@
 ﻿using Estacionamento.Application.DTOs.Cliente;
 using Estacionamento.Application.Interfaces;
+using Estacionamento.Domain.Entities;
+using Estacionamento.Domain.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,24 +12,71 @@ namespace Estacionamento.Application.Services
 {
     public class ClienteService : IClienteService
     {
-        public Task<ClienteResponse> CriacaoAsynk(CriarClienteRequest request)
+        private readonly IClienteRepository _clienteRepository;
+
+        public ClienteService(IClienteRepository cliente)
         {
-            throw new NotImplementedException();
+            _clienteRepository = cliente;
         }
 
-        public Task<IEnumerable<ClienteResponse>> ListarAsynk()
+        public async  Task <ClienteResponse> AdicionarAsync(CriarClienteRequest request)
         {
-            throw new NotImplementedException();
+            var clienteExiste = await _clienteRepository.ObterPorDocumentoAsynk(request.Documento);
+
+            if (clienteExiste != null)
+            {
+                throw new Exception("Cliente ja cadastrado");
+            }
+
+            var cliente = new Cliente(
+                request.Nome,
+                request.Documento
+                );
+
+            await _clienteRepository.AdicionarAsync(cliente);
+
+            return new ClienteResponse
+            {
+                Id= cliente.Id,
+                Nome= request.Nome,
+                Documento= cliente.Documento,
+            };
         }
 
-        public Task<ClienteResponse?> ObterPorIdAsynk(Guid id)
+        public async Task<ClienteResponse> ObterPorIdAsync(Guid id)
         {
-            throw new NotImplementedException();
+            var cliente = await _clienteRepository.ObterPorIdAsync(id);
+
+
+            return new ClienteResponse
+            {
+                Id = cliente.Id,
+                Nome = cliente.Nome,
+                Documento = cliente.Documento
+            };
         }
 
-        public Task RemoverAsynk(Guid id)
+        public async Task<IEnumerable<ClienteResponse?>> ListarAsynk()
         {
-            throw new NotImplementedException();
+            var clientes = await _clienteRepository.ListarAsynk();
+
+            List<ClienteResponse>  listaCliente = new();
+
+            foreach (var cliente in clientes)
+            {
+                listaCliente.Add(new ClienteResponse
+                {
+                    Id = cliente.Id,
+                    Nome = cliente.Nome,
+                    Documento = cliente.Documento
+                });
+            }
+            return listaCliente;
+        }
+
+        public async Task RemoverAsync(Guid id)
+        {
+            await _clienteRepository.RemoverAsync(id);    
         }
     }
 }

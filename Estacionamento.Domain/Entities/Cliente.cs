@@ -21,7 +21,7 @@ namespace Estacionamento.Domain.Entities
             Veiculos = new List<Veiculo>();
         }
         public Cliente(
-            string nome, string documento, List<Veiculo> veiculos
+            string nome, string documento
             )
         {
             Id = Guid.NewGuid();
