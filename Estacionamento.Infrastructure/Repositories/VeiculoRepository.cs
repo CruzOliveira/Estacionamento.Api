@@ -30,12 +30,12 @@ namespace Estacionamento.Infrastructure.Repositories
             return await _context.Veiculos.FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public Task<Veiculo?> ObterPorPlacaAsynk(string placa)
+        public Task<Veiculo?> ObterPorPlacaAsync(string placa)
         {
             return _context.Veiculos.FirstOrDefaultAsync(x => x.Placa == placa);
         }
 
-        public async Task<IEnumerable<Veiculo?>> ListarAsynk()
+        public async Task<IEnumerable<Veiculo?>> ListarAsync()
         {
             return await _context.Veiculos.ToListAsync();
         }

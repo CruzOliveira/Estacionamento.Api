@@ -10,8 +10,8 @@ namespace Estacionamento.Domain.Interfaces
     public interface IVeiculoRepository
     {
         Task<Veiculo?> ObterPorIdAsync(Guid id);
-        Task<Veiculo?> ObterPorPlacaAsynk(string placa);
-        Task<IEnumerable<Veiculo?>> ListarAsynk();
+        Task<Veiculo?> ObterPorPlacaAsync(string placa);
+        Task<IEnumerable<Veiculo?>> ListarAsync();
         Task AdicionarAsync(Veiculo veiculo);
         Task RemoverAsync(Guid id);
     }
