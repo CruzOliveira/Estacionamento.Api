@@ -56,9 +56,9 @@ namespace Estacionamento.Application.Services
             };
         }
 
-        public async Task<IEnumerable<ClienteResponse?>> ListarAsynk()
+        public async Task<IEnumerable<ClienteResponse?>> ListarAsync()
         {
-            var clientes = await _clienteRepository.ListarAsynk();
+            var clientes = await _clienteRepository.ListarAsync();
 
             List<ClienteResponse>  listaCliente = new();
 

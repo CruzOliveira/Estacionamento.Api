@@ -12,7 +12,7 @@ namespace Estacionamento.Domain.Interfaces
         Task<Veiculo?> ObterPorIdAsync(Guid id);
         Task<Veiculo?> ObterPorPlacaAsync(string placa);
         Task<IEnumerable<Veiculo?>> ListarAsync();
-        Task AdicionarAsync(Veiculo veiculo);
+        Task CriacaoAsync(Veiculo veiculo);
         Task RemoverAsync(Guid id);
     }
 }

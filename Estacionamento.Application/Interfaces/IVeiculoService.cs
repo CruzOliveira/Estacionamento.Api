@@ -9,10 +9,10 @@ namespace Estacionamento.Application.Interfaces
 {
     public interface IVeiculoService
     {
-        Task<VeiculoResponse> CriacaoAsynk(CriarVeiculoRequest request);
-        Task<VeiculoResponse?> ObterPorIdAsynk(Guid id);
-        Task<IEnumerable<VeiculoResponse>> ListarAsynk();
-        Task RemoverAsynk(Guid id);
+        Task<VeiculoResponse> CriacaoAsync(CriarVeiculoRequest request);
+        Task<VeiculoResponse?> ObterPorIdAsync(Guid id);
+        Task<IEnumerable<VeiculoResponse>> ListarAsync();
+        Task RemoverAsync(Guid id);
 
     }
 }

@@ -19,7 +19,7 @@ namespace Estacionamento.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task AdicionarAsync(Veiculo veiculo)
+        public async Task CriacaoAsync(Veiculo veiculo)
         {
             await _context.Veiculos.AddAsync(veiculo);
             await _context.SaveChangesAsync();

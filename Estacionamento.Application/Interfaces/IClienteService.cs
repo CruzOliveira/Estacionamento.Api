@@ -11,7 +11,7 @@ namespace Estacionamento.Application.Interfaces
     public interface IClienteService
     {
         Task<ClienteResponse> ObterPorIdAsync(Guid id);
-        Task<IEnumerable<ClienteResponse?>> ListarAsynk();
+        Task<IEnumerable<ClienteResponse?>> ListarAsync();
         Task <ClienteResponse> AdicionarAsync(CriarClienteRequest cliente);
         Task RemoverAsync(Guid id);
     }

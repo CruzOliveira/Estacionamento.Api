@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace Estacionamento.Domain.Interfaces
 {
-    public interface IClienteRepository
+    public interface IVagaRepository
     {
-        Task<Cliente?> ObterPorIdAsync(Guid id);
-        Task<Cliente?> ObterPorDocumentoAsynk(string documento);
-        Task<IEnumerable<Cliente?>> ListarAsync();
-        Task AdicionarAsync(Cliente cliente);
+        Task CriacaoAsync(Vaga request);
+        Task<Vaga?> ObterPorIdAsync(Guid id);
+        Task<Vaga?> ObterPorNumeroAsync(int numero);
+        Task<IEnumerable<Vaga?>> ListarAsync();
         Task RemoverAsync(Guid id);
     }
 }

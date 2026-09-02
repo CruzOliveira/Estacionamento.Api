@@ -19,7 +19,7 @@ namespace Estacionamento.Application.Services
             _veiculoRepository = veiculoRepository;
         }
 
-        public async Task<VeiculoResponse> CriacaoAsynk(CriarVeiculoRequest request)
+        public async Task<VeiculoResponse> CriacaoAsync(CriarVeiculoRequest request)
         {
             
 
@@ -32,7 +32,7 @@ namespace Estacionamento.Application.Services
             
             Veiculo veiculo = new Veiculo(request.Placa, request.Tipo, request.ClienteId);
 
-            await _veiculoRepository.AdicionarAsync(veiculo);
+            await _veiculoRepository.CriacaoAsync(veiculo);
 
             return new VeiculoResponse
             {
@@ -41,7 +41,7 @@ namespace Estacionamento.Application.Services
             };
         }
 
-        public async Task<VeiculoResponse?> ObterPorIdAsynk(Guid id)
+        public async Task<VeiculoResponse?> ObterPorIdAsync(Guid id)
         {
             var veiculo = await _veiculoRepository.ObterPorIdAsync(id);
 
@@ -56,7 +56,7 @@ namespace Estacionamento.Application.Services
 
 
         }
-        public async Task<IEnumerable<VeiculoResponse>> ListarAsynk()
+        public async Task<IEnumerable<VeiculoResponse>> ListarAsync()
         {
             var veiculos = await _veiculoRepository.ListarAsync();
 
@@ -68,7 +68,7 @@ namespace Estacionamento.Application.Services
             return veiculosResponse;
         }
 
-        public async Task RemoverAsynk(Guid id)
+        public async Task RemoverAsync(Guid id)
         {
             var veiculoExistente = await _veiculoRepository.ObterPorIdAsync(id);
 

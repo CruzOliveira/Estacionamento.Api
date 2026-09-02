@@ -18,13 +18,13 @@ namespace Estacionamento.Domain.Entities
         public StatusVaga Status { get; private set; }
 
         public Vaga(
-            int numero, TipoVeiculo tipo, StatusVaga status
+            int numero, TipoVeiculo tipo
             ) 
         { 
             Id = Guid.NewGuid();
             Numero = numero;
             Tipo = tipo;
-            Status = status;
+            Status = StatusVaga.Disponivel;
         }   
     }
 }

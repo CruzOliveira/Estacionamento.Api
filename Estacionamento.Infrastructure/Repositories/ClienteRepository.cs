@@ -35,7 +35,7 @@ namespace Estacionamento.Infrastructure.Repositories
             return _context.Clientes.FirstOrDefaultAsync(x => x.Id == id);
         }
 
-        public async Task<IEnumerable<Cliente?>> ListarAsynk()
+        public async Task<IEnumerable<Cliente?>> ListarAsync()
         {
             return await _context.Clientes.ToListAsync();
         }
