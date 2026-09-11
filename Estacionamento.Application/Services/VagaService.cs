@@ -36,25 +36,37 @@ namespace Estacionamento.Application.Services
             {
                 throw new InvalidOperationException("Vaga já existe.");
             }
-            
-            Vaga novaVaga = new Vaga(
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+
+                Vaga novaVaga = new Vaga(
                 request.Numero,
                 request.Tipo
-            );
-            await _vagaRepository.CriacaoAsync(novaVaga);
-            await _unitOfWork.SaveChangesAsync();
+                );
+
+                await _vagaRepository.CriacaoAsync(novaVaga);
+                await _unitOfWork.SaveChangesAsync();
+
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
+
         }
 
         public async Task<IEnumerable<VagaResponse?>> ListarAsync()
         {
-             var vagas = await _vagaRepository.ListarAsync();
-             return vagas.Select(v => new VagaResponse
-             {
-                 Id = v.Id,
-                 Numero = v.Numero,
-                 Tipo = v.Tipo == TipoVeiculo.Moto ? "Moto" : "Carro",
-                 Ocupada = v.Status == StatusVaga.Ocupada,
-             });
+            var vagas = await _vagaRepository.ListarAsync();
+            return vagas.Select(v => new VagaResponse
+            {
+                Id = v.Id,
+                Numero = v.Numero,
+                Tipo = v.Tipo == TipoVeiculo.Moto ? "Moto" : "Carro",
+                Ocupada = v.Status == StatusVaga.Ocupada,
+            });
         }
 
         public async Task<VagaResponse?> ObterPorNumeroAsync(int numero)
@@ -81,8 +93,20 @@ namespace Estacionamento.Application.Services
             var vaga = await _vagaRepository.ObterPorIdAsync(id);
             if (vaga == null) throw new KeyNotFoundException("Vaga não encontrada.");
 
-            await _vagaRepository.RemoverAsync(id);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+
+                await _vagaRepository.RemoverAsync(id);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitTransactionAsync();
+
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
     }
 }

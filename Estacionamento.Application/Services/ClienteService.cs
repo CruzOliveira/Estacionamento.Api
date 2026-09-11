@@ -97,8 +97,18 @@ namespace Estacionamento.Application.Services
 
         public async Task RemoverAsync(Guid id)
         {
-            await _clienteRepository.RemoverAsync(id);
-            await _unitOfWork.SaveChangesAsync();
+
+            await _unitOfWork.BeginTransactionAsync();
+            try {
+                await _clienteRepository.RemoverAsync(id);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
     }
 }

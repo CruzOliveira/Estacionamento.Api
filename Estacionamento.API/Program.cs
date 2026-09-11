@@ -11,10 +11,14 @@ using Estacionamento.Application.DTOs.Vaga;
 using Estacionamento.Application.DTOs.Veiculo;
 using Estacionamento.Application.Validators;
 using FluentValidation;
-
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Host.UseSerilog((context, services, configuration) => configuration
+    .ReadFrom.Configuration(context.Configuration)
+    .ReadFrom.Services(services)
+    .Enrich.FromLogContext());
 // Add services to the container.
 
 builder.Services.AddControllers();
@@ -44,6 +48,9 @@ builder.Services.AddScoped<IValidator<CriarVagaRequest>, CriarVagaRequestValidat
 builder.Services.AddScoped<IValidator<CriarEstadiaRequest>, CriarEstadiaRequestValidator>();
 
 var app = builder.Build();
+
+app.UseSerilogRequestLogging();
+
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

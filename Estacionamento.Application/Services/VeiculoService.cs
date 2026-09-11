@@ -37,18 +37,27 @@ namespace Estacionamento.Application.Services
             {
                 throw new InvalidOperationException("Veículo com esta placa já está cadastrado.");
             }
-            
-            Veiculo veiculo = new Veiculo(request.Placa, request.Tipo, request.ClienteId);
 
-            await _veiculoRepository.CriacaoAsync(veiculo);
-            await _unitOfWork.SaveChangesAsync();
-
-            return new VeiculoResponse
+            await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                Id = veiculo.Id,
-                Placa = veiculo.Placa,
-                Tipo = veiculo.Tipo,
-            };
+                Veiculo veiculo = new Veiculo(request.Placa, request.Tipo, request.ClienteId);
+
+                await _veiculoRepository.CriacaoAsync(veiculo);
+                await _unitOfWork.SaveChangesAsync();
+
+                return new VeiculoResponse
+                {
+                    Id = veiculo.Id,
+                    Placa = veiculo.Placa,
+                    Tipo = veiculo.Tipo,
+                };
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
 
         public async Task<VeiculoResponse?> ObterPorIdAsync(Guid id)
@@ -89,8 +98,19 @@ namespace Estacionamento.Application.Services
                 throw new KeyNotFoundException("Veículo não encontrado.");
             }
 
-            await _veiculoRepository.RemoverAsync(veiculoExistente.Id);
-            await _unitOfWork.SaveChangesAsync();
+            await _unitOfWork.BeginTransactionAsync();
+
+            try
+            {
+                await _veiculoRepository.RemoverAsync(veiculoExistente.Id);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitTransactionAsync();
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
     }
 }
