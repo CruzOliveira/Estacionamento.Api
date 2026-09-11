@@ -13,16 +13,18 @@ namespace Estacionamento.Infrastructure.Repositories
     public class VeiculoRepository : IVeiculoRepository
     {
         private readonly EstacionamentoDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public VeiculoRepository(EstacionamentoDbContext context)
+        public VeiculoRepository(EstacionamentoDbContext context, IUnitOfWork unitOfWork)
         {
             _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task CriacaoAsync(Veiculo veiculo)
         {
             await _context.Veiculos.AddAsync(veiculo);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task<Veiculo?> ObterPorIdAsync(Guid id)
@@ -44,13 +46,13 @@ namespace Estacionamento.Infrastructure.Repositories
         {
             var veiculo = await ObterPorIdAsync(id);
 
-            if (veiculo != null)
+            if (veiculo is null)
             {
-                return;
+                throw new KeyNotFoundException("Veículo não encontrado.");
             }    
             
             _context.Veiculos.Remove(veiculo);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

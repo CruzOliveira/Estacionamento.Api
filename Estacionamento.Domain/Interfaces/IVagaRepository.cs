@@ -13,6 +13,7 @@ namespace Estacionamento.Domain.Interfaces
         Task<Vaga?> ObterPorIdAsync(Guid id);
         Task<Vaga?> ObterPorNumeroAsync(int numero);
         Task<IEnumerable<Vaga?>> ListarAsync();
+        Task AtualizarAsync(Vaga vaga);
         Task RemoverAsync(Guid id);
     }
 }

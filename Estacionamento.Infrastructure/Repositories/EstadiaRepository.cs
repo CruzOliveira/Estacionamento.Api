@@ -13,31 +13,24 @@ namespace Estacionamento.Infrastructure.Repositories
     public class EstadiaRepository : IEstadiaRepository
     {
         private readonly EstacionamentoDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public EstadiaRepository(EstacionamentoDbContext context)
+        public EstadiaRepository(EstacionamentoDbContext context, IUnitOfWork unitOfWork)
         {
             _context = context;
+            _unitOfWork = unitOfWork;
         }
         public async Task CriacaoAsync(Estadia request)
         {
             
             await _context.Estadias.AddAsync(request);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
-        public async Task FinalizarAsync(Guid id)
+        public async Task AtualizarAsync(Estadia estadia)
         {
-            var estadia = await ObterPorIdAsync(id);
-
-            if (estadia == null)
-            {
-                throw new InvalidOperationException("Estadia não encontrada.");
-            }
-
-            _context.Estadias.Remove(estadia);
-            await _context.SaveChangesAsync();
-
-
+            _context.Estadias.Update(estadia);
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task<IEnumerable<Estadia?>> ListarAsync()

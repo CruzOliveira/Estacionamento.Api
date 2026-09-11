@@ -26,5 +26,25 @@ namespace Estacionamento.Domain.Entities
             Tipo = tipo;
             Status = StatusVaga.Disponivel;
         }   
+
+        public void Ocupar()
+        {
+            if (Status != StatusVaga.Disponivel)
+            {
+                throw new InvalidOperationException("A vaga não está disponível.");
+            }
+
+            Status = StatusVaga.Ocupada;
+        }
+
+        public void Liberar()
+        {
+            if (Status != StatusVaga.Ocupada)
+            {
+                throw new InvalidOperationException("A vaga não está ocupada.");
+            }
+
+            Status = StatusVaga.Disponivel;
+        }
     }
 }

@@ -35,5 +35,21 @@ namespace Estacionamento.Domain.Entities
             Entrada = entrada;
             
         }
+
+        public void Finalizar(DateTime saida, decimal valor)
+        {
+            if (Saida.HasValue)
+            {
+                throw new InvalidOperationException("Esta estadia já foi finalizada.");
+            }
+
+            if (saida < Entrada)
+            {
+                throw new ArgumentException("A saída não pode ser anterior à entrada.", nameof(saida));
+            }
+
+            Saida = saida;
+            Valor = valor;
+        }
     }
 }

@@ -2,6 +2,7 @@
 using Estacionamento.Application.Interfaces;
 using Estacionamento.Domain.Entities;
 using Estacionamento.Domain.Interfaces;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,15 +14,22 @@ namespace Estacionamento.Application.Services
     public class VeiculoService : IVeiculoService
     {
         private readonly IVeiculoRepository _veiculoRepository;
+        private readonly IValidator<CriarVeiculoRequest> _validator;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public VeiculoService(IVeiculoRepository veiculoRepository)
+        public VeiculoService(
+            IVeiculoRepository veiculoRepository,
+            IValidator<CriarVeiculoRequest> validator,
+            IUnitOfWork unitOfWork)
         {
             _veiculoRepository = veiculoRepository;
+            _validator = validator;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task<VeiculoResponse> CriacaoAsync(CriarVeiculoRequest request)
         {
-            
+            await _validator.ValidateAndThrowAsync(request);
 
             var veiculoExistente = await _veiculoRepository.ObterPorPlacaAsync(request.Placa);
 
@@ -33,9 +41,11 @@ namespace Estacionamento.Application.Services
             Veiculo veiculo = new Veiculo(request.Placa, request.Tipo, request.ClienteId);
 
             await _veiculoRepository.CriacaoAsync(veiculo);
+            await _unitOfWork.SaveChangesAsync();
 
             return new VeiculoResponse
             {
+                Id = veiculo.Id,
                 Placa = veiculo.Placa,
                 Tipo = veiculo.Tipo,
             };
@@ -50,6 +60,7 @@ namespace Estacionamento.Application.Services
 
             return new VeiculoResponse
             {
+                Id = veiculo.Id,
                 Placa = veiculo.Placa,
                 Tipo = veiculo.Tipo,
             };
@@ -62,6 +73,7 @@ namespace Estacionamento.Application.Services
 
             var veiculosResponse = veiculos.Select(v => new VeiculoResponse
             {
+                Id = v.Id,
                 Placa = v.Placa,
                 Tipo = v.Tipo,
             });
@@ -74,10 +86,11 @@ namespace Estacionamento.Application.Services
 
             if (veiculoExistente == null)
             {
-                throw new InvalidOperationException("Veículo não encontrado.");
+                throw new KeyNotFoundException("Veículo não encontrado.");
             }
 
             await _veiculoRepository.RemoverAsync(veiculoExistente.Id);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

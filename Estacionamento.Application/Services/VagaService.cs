@@ -3,6 +3,7 @@ using Estacionamento.Application.Interfaces;
 using Estacionamento.Domain.Entities;
 using Estacionamento.Domain.Enuns;
 using Estacionamento.Domain.Interfaces;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,18 +15,26 @@ namespace Estacionamento.Application.Services
     public class VagaService : IVagaService
     {
         private readonly IVagaRepository _vagaRepository;
+        private readonly IValidator<CriarVagaRequest> _validator;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public VagaService(IVagaRepository vagaRepository)
+        public VagaService(
+            IVagaRepository vagaRepository,
+            IValidator<CriarVagaRequest> validator,
+            IUnitOfWork unitOfWork)
         {
             _vagaRepository = vagaRepository;
+            _validator = validator;
+            _unitOfWork = unitOfWork;
         }
         public async Task CriacaoAsync(CriarVagaRequest request)
         {
-           
+            await _validator.ValidateAndThrowAsync(request);
+
             var vaga = await ObterPorNumeroAsync(request.Numero);
             if (vaga != null)
             {
-                throw new Exception("Vaga já existe.");
+                throw new InvalidOperationException("Vaga já existe.");
             }
             
             Vaga novaVaga = new Vaga(
@@ -33,7 +42,7 @@ namespace Estacionamento.Application.Services
                 request.Tipo
             );
             await _vagaRepository.CriacaoAsync(novaVaga);
-
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task<IEnumerable<VagaResponse?>> ListarAsync()
@@ -57,6 +66,7 @@ namespace Estacionamento.Application.Services
             {
                 Id = vaga.Id,
                 Numero = vaga.Numero,
+                Tipo = vaga.Tipo == TipoVeiculo.Moto ? "Moto" : "Carro",
                 Ocupada = vaga.Status == StatusVaga.Ocupada,
             };
         }
@@ -69,9 +79,10 @@ namespace Estacionamento.Application.Services
         public async Task RemoverAsync(Guid id)
         {
             var vaga = await _vagaRepository.ObterPorIdAsync(id);
-            if (vaga == null) throw new Exception("Vaga não encontrada.");
+            if (vaga == null) throw new KeyNotFoundException("Vaga não encontrada.");
 
             await _vagaRepository.RemoverAsync(id);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

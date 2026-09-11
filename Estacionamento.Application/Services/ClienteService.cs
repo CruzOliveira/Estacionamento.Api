@@ -2,6 +2,7 @@
 using Estacionamento.Application.Interfaces;
 using Estacionamento.Domain.Entities;
 using Estacionamento.Domain.Interfaces;
+using FluentValidation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,41 +14,61 @@ namespace Estacionamento.Application.Services
     public class ClienteService : IClienteService
     {
         private readonly IClienteRepository _clienteRepository;
+        private readonly IValidator<CriarClienteRequest> _validator;
+        
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ClienteService(IClienteRepository cliente)
+        public ClienteService(
+            IClienteRepository cliente,
+            IValidator<CriarClienteRequest> validator,
+            IUnitOfWork unitOfWork)
         {
             _clienteRepository = cliente;
+            _validator = validator;
+            _unitOfWork = unitOfWork;
         }
 
         public async  Task <ClienteResponse> AdicionarAsync(CriarClienteRequest request)
         {
+            await _validator.ValidateAndThrowAsync(request);
+
             var clienteExiste = await _clienteRepository.ObterPorDocumentoAsynk(request.Documento);
 
             if (clienteExiste != null)
             {
-                throw new Exception("Cliente ja cadastrado");
+                throw new InvalidOperationException("Cliente ja cadastrado");
             }
-
-            var cliente = new Cliente(
-                request.Nome,
-                request.Documento
-                );
-
-            await _clienteRepository.AdicionarAsync(cliente);
-
-            return new ClienteResponse
+            await _unitOfWork.BeginTransactionAsync();
+            try
             {
-                Id= cliente.Id,
-                Nome= request.Nome,
-                Documento= cliente.Documento,
-            };
+                var cliente = new Cliente(
+                    request.Nome,
+                    request.Documento
+                    );
+                await _clienteRepository.AdicionarAsync(cliente);
+                await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitTransactionAsync();
+                return new ClienteResponse
+                {
+                    Id = cliente.Id,
+                    Nome = request.Nome,
+                    Documento = cliente.Documento,
+                };
+            }
+            catch
+            {
+                await _unitOfWork.RollbackTransactionAsync();
+                throw;
+            }
         }
 
         public async Task<ClienteResponse> ObterPorIdAsync(Guid id)
         {
             var cliente = await _clienteRepository.ObterPorIdAsync(id);
-
-
+            if( cliente is null )
+            {
+                throw new KeyNotFoundException("Cliente não encontrado.");
+            }
             return new ClienteResponse
             {
                 Id = cliente.Id,
@@ -76,7 +97,8 @@ namespace Estacionamento.Application.Services
 
         public async Task RemoverAsync(Guid id)
         {
-            await _clienteRepository.RemoverAsync(id);    
+            await _clienteRepository.RemoverAsync(id);
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

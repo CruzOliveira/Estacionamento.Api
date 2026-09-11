@@ -13,16 +13,19 @@ namespace Estacionamento.Infrastructure.Repositories
     public class ClienteRepository : IClienteRepository
     {
         private readonly EstacionamentoDbContext _context;
+        private readonly IUnitOfWork _unitOfWork;
 
-        public ClienteRepository(EstacionamentoDbContext context)
+
+        public ClienteRepository(EstacionamentoDbContext context, IUnitOfWork unitOfWork)
         {
             _context = context;
+            _unitOfWork = unitOfWork;
         }
 
         public async Task AdicionarAsync(Cliente veiculo)
         {
             await _context.Clientes.AddAsync(veiculo);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
 
         public async Task<Cliente?> ObterPorDocumentoAsynk(string documento)
@@ -50,7 +53,7 @@ namespace Estacionamento.Infrastructure.Repositories
             }
 
             _context.Clientes.Remove(cliente);
-            await _context.SaveChangesAsync();
+            await _unitOfWork.SaveChangesAsync();
         }
     }
 }

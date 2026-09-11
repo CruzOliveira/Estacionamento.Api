@@ -1,6 +1,7 @@
 <Solution>
+  <Project Path="Estacionamento.API/Estacionamento.API.csproj" />
   <Project Path="Estacionamento.Application/Estacionamento.Application.csproj" />
   <Project Path="Estacionamento.Domain/Estacionamento.Domain.csproj" />
   <Project Path="Estacionamento.Infrastructure/Estacionamento.Infrastructure.csproj" />
-  <Project Path="Estacionamento.API/Estacionamento.API.csproj" />
+  <Project Path="Estacionamento.Tests/Estacionamento.Tests.csproj" Id="2230896d-f442-4056-9cde-a34d9af12970" />
 </Solution>

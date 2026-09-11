@@ -12,6 +12,6 @@ namespace Estacionamento.Domain.Interfaces
         Task CriacaoAsync(Estadia request);
         Task<Estadia?> ObterPorIdAsync(Guid id);
         Task<IEnumerable<Estadia?>> ListarAsync();
-        Task FinalizarAsync(Guid id);
+        Task AtualizarAsync(Estadia estadia);
     }
 }
