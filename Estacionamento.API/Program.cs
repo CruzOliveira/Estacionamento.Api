@@ -48,7 +48,13 @@ builder.Services.AddScoped<IValidator<CriarVagaRequest>, CriarVagaRequestValidat
 builder.Services.AddScoped<IValidator<CriarEstadiaRequest>, CriarEstadiaRequestValidator>();
 
 var app = builder.Build();
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider
+        .GetRequiredService<EstacionamentoDbContext>();
 
+    await dbContext.Database.MigrateAsync();
+}
 app.UseSerilogRequestLogging();
 
 app.UseMiddleware<ExceptionHandlingMiddleware>();
