@@ -45,6 +45,7 @@ namespace Estacionamento.Application.Services
 
                 await _veiculoRepository.CriacaoAsync(veiculo);
                 await _unitOfWork.SaveChangesAsync();
+                await _unitOfWork.CommitTransactionAsync();
 
                 return new VeiculoResponse
                 {
